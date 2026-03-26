@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 24px; font-weight: 700; fill: #17324d; }
+      .label { font-family: Arial, sans-serif; font-size: 21px; font-weight: 600; fill: #17324d; }
+      .text { font-family: Arial, sans-serif; font-size: 18px; font-weight: 400; fill: #1f2937; }
+      .branchA { stroke: #c26a3d; stroke-width: 6; fill: none; }
+      .branchB { stroke: #2f7d68; stroke-width: 6; fill: none; }
+      .main { stroke: #4a6fa5; stroke-width: 6; fill: none; }
+    </style>
+  </defs>
+  <rect width="1200" height="760" fill="#fcfcf7"/>
+  <text x="60" y="60" class="title">Paralel Geliştirme: Ana Daldan Ayrılan İki Özellik Dalı</text>
+
+  <text x="90" y="160" class="label">main</text>
+  <line x1="150" y1="150" x2="1050" y2="150" class="main" stroke="#4a6fa5" stroke-width="6"/>
+  <circle cx="220" cy="150" r="12" fill="#4a6fa5"/>
+  <circle cx="520" cy="150" r="12" fill="#4a6fa5"/>
+  <circle cx="830" cy="150" r="12" fill="#4a6fa5"/>
+  <text x="175" y="125" class="text">c1 init</text>
+  <text x="470" y="125" class="text">ortak başlangıç</text>
+
+  <polyline points="520,150 585,195 640,245 690,300" class="branchA" stroke="#c26a3d" stroke-width="6" fill="none"/>
+  <polyline points="520,150 585,135 640,118 690,100" class="branchB" stroke="#2f7d68" stroke-width="6" fill="none"/>
+
+  <text x="710" y="330" class="label">feature/find-user-by-email</text>
+  <line x1="690" y1="300" x2="1070" y2="300" class="branchA" stroke="#c26a3d" stroke-width="6"/>
+  <circle cx="810" cy="300" r="12" fill="#c26a3d"/>
+  <circle cx="980" cy="300" r="12" fill="#c26a3d"/>
+  <text x="760" y="273" class="text">lookup by email</text>
+
+  <text x="705" y="132" class="label">feature/email-validation</text>
+  <line x1="690" y1="100" x2="1070" y2="100" class="branchB" stroke="#2f7d68" stroke-width="6"/>
+  <circle cx="830" cy="100" r="12" fill="#2f7d68"/>
+  <circle cx="1000" cy="100" r="12" fill="#2f7d68"/>
+  <text x="760" y="74" class="text">email validation</text>
+
+  <rect x="80" y="430" width="1040" height="220" rx="18" fill="#eef3fb" stroke="#b7c6dc" stroke-width="2"/>
+  <text x="110" y="485" class="label">Yorum</text>
+  <text x="110" y="530" class="text">İki geliştirici aynı Java projesinde birbirinden bağımsız çalışabilir;</text>
+  <text x="110" y="565" class="text">ancak aynı dosya veya aynı iş mantığı üzerinde değişiklik yapıldığında</text>
+  <text x="110" y="600" class="text">entegrasyon anında merge veya rebase kararı kritik hale gelir.</text>
+</svg>

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 28px; font-weight: 700; fill: #17324d; }
+      .label { font-family: Arial, sans-serif; font-size: 22px; font-weight: 600; fill: #17324d; }
+      .text { font-family: Arial, sans-serif; font-size: 18px; font-weight: 400; fill: #1f2937; }
+      .boxA { fill: #f5f1e8; stroke: #9a7b4f; stroke-width: 3; rx: 16; }
+      .boxB { fill: #e8f2ef; stroke: #2f7d68; stroke-width: 3; rx: 16; }
+      .boxC { fill: #eef3fb; stroke: #4a6fa5; stroke-width: 3; rx: 16; }
+      .arrow { stroke: #475569; stroke-width: 4; fill: none; marker-end: url(#m); }
+    </style>
+    <marker id="m" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="760" fill="#fffdfa"/>
+  <text x="60" y="70" class="title">Pull Request ve CI Arasındaki Geri Bildirim Döngüsü</text>
+
+  <rect x="90" y="180" width="220" height="120" class="boxA"/>
+  <text x="140" y="235" class="label">Yerel Commit</text>
+  <text x="125" y="275" class="text">feature branch üzerinde</text>
+
+  <rect x="380" y="180" width="220" height="120" class="boxA"/>
+  <text x="445" y="235" class="label">GitHub Push</text>
+  <text x="430" y="275" class="text">origin/feature</text>
+
+  <rect x="670" y="180" width="220" height="120" class="boxC"/>
+  <text x="710" y="235" class="label">Pull Request</text>
+  <text x="700" y="275" class="text">inceleme talebi</text>
+
+  <rect x="960" y="180" width="170" height="120" class="boxB"/>
+  <text x="1010" y="235" class="label">CI</text>
+  <text x="985" y="275" class="text">build + test</text>
+
+  <line x1="310" y1="240" x2="380" y2="240" class="arrow" stroke="#475569" stroke-width="4" marker-end="url(#m)"/>
+  <line x1="600" y1="240" x2="670" y2="240" class="arrow" stroke="#475569" stroke-width="4" marker-end="url(#m)"/>
+  <line x1="890" y1="240" x2="960" y2="240" class="arrow" stroke="#475569" stroke-width="4" marker-end="url(#m)"/>
+
+  <rect x="735" y="470" width="220" height="120" class="boxB"/>
+  <text x="790" y="525" class="label">Merge</text>
+  <text x="765" y="565" class="text">main dalına kabul</text>
+
+  <rect x="365" y="470" width="240" height="120" class="boxC"/>
+  <text x="410" y="525" class="label">Code Review</text>
+  <text x="395" y="565" class="text">yorum ve düzeltme</text>
+
+  <polyline points="1045,300 1045,360 970,400 865,470" class="arrow" stroke="#475569" stroke-width="4" fill="none" marker-end="url(#m)"/>
+  <polyline points="960,240 930,340 760,420 605,520" class="arrow" stroke="#475569" stroke-width="4" fill="none" marker-end="url(#m)"/>
+  <polyline points="365,520 270,520 220,430 220,300" class="arrow" stroke="#475569" stroke-width="4" fill="none" marker-end="url(#m)"/>
+
+  <text x="120" y="680" class="text">Başarısız test veya olumsuz inceleme, geliştiriciyi yeni commit üretmeye zorlar; böylece kalite denetimi döngüsel hale gelir.</text>
+</svg>
