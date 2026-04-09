@@ -280,19 +280,18 @@ Backend ve frontend için paralel build/push, staging deploy, production onayı 
 
 ```groovy
 pipeline {
-    agent { label 'docker' }
+    agent any
 
     options {
         timestamps()
         disableConcurrentBuilds()
     }
 
+    tools {
+        maven 'M3'
+    }
+
     environment {
-        REGISTRY = 'registry.example.com'
-        GIT_SHA = "${env.GIT_COMMIT.take(7)}"
-        VERSION_TAG = "${env.BUILD_NUMBER}-${GIT_SHA}"
-        BACKEND_IMAGE = "${REGISTRY}/yemek-backend:${VERSION_TAG}"
-        FRONTEND_IMAGE = "${REGISTRY}/yemek-frontend:${VERSION_TAG}"
         STAGING_HOST = 'deploy@staging-server'
         PRODUCTION_HOST = 'deploy@prod-server'
     }
@@ -301,6 +300,13 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/fatihokumus/CICDOrnek.git'
+
+                script {
+                    env.GIT_SHA = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    env.VERSION_TAG = "${env.BUILD_NUMBER}-${env.GIT_SHA}"
+                    env.BACKEND_IMAGE = "yemek-backend:${env.VERSION_TAG}"
+                    env.FRONTEND_IMAGE = "yemek-frontend:${env.VERSION_TAG}"
+                }
             }
         }
 
@@ -327,18 +333,6 @@ pipeline {
             }
         }
 
-        stage('Push Images') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'registry-creds', usernameVariable: 'REG_USER', passwordVariable: 'REG_PASS')]) {
-                    sh '''
-                        echo "$REG_PASS" | docker login $REGISTRY -u "$REG_USER" --password-stdin
-                        docker push $BACKEND_IMAGE
-                        docker push $FRONTEND_IMAGE
-                    '''
-                }
-            }
-        }
-
         stage('Deploy to Staging') {
             steps {
                 sh '''
@@ -346,7 +340,6 @@ pipeline {
                       export BACKEND_IMAGE=$BACKEND_IMAGE &&
                       export FRONTEND_IMAGE=$FRONTEND_IMAGE &&
                       cd /opt/yemek-siparis &&
-                      docker compose -f docker-compose.deploy.yml pull &&
                       docker compose -f docker-compose.deploy.yml up -d --remove-orphans
                     "
                 '''
@@ -369,7 +362,7 @@ pipeline {
                 branch 'main'
             }
             steps {
-                input message: 'Production deployment onayi verilsin mi?', ok: 'Deploy'
+                input message: 'Production deployment onayı verilsin mi?', ok: 'Deploy'
             }
         }
 
@@ -383,7 +376,6 @@ pipeline {
                       export BACKEND_IMAGE=$BACKEND_IMAGE &&
                       export FRONTEND_IMAGE=$FRONTEND_IMAGE &&
                       cd /opt/yemek-siparis &&
-                      docker compose -f docker-compose.deploy.yml pull &&
                       docker compose -f docker-compose.deploy.yml up -d --remove-orphans
                     "
                 '''
