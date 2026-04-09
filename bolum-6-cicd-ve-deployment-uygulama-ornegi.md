@@ -274,7 +274,7 @@ Başlangıç durumu:
 Pipeline sadece tek servis veya yalnızca build odaklı kurgulanmıştır.
 
 Yapılan değişiklik:  
-Backend ve frontend için paralel build/push, ardından staging deploy eklenir.
+Backend ve frontend için paralel build/push, staging deploy, production onayı ve production deploy adımları eklenir.
 
 İlgili dosya örneği:
 
@@ -294,12 +294,13 @@ pipeline {
         BACKEND_IMAGE = "${REGISTRY}/yemek-backend:${VERSION_TAG}"
         FRONTEND_IMAGE = "${REGISTRY}/yemek-frontend:${VERSION_TAG}"
         STAGING_HOST = 'deploy@staging-server'
+        PRODUCTION_HOST = 'deploy@prod-server'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                git branch: 'main', url: 'https://github.com/fatihokumus/CICDOrnek.git'
             }
         }
 
@@ -357,6 +358,49 @@ pipeline {
                 sh '''
                     ssh $STAGING_HOST "
                       curl -fsS http://localhost:4343/api/menu > /dev/null &&
+                      curl -fsS http://localhost:4242 > /dev/null
+                    "
+                '''
+            }
+        }
+
+        stage('Production Approval') {
+            when {
+                branch 'main'
+            }
+            steps {
+                input message: 'Production deployment onayi verilsin mi?', ok: 'Deploy'
+            }
+        }
+
+        stage('Deploy to Production') {
+            when {
+                branch 'main'
+            }
+            steps {
+                sh '''
+                    ssh $PRODUCTION_HOST "
+                      export BACKEND_IMAGE=$BACKEND_IMAGE &&
+                      export FRONTEND_IMAGE=$FRONTEND_IMAGE &&
+                      cd /opt/yemek-siparis &&
+                      docker compose -f docker-compose.deploy.yml pull &&
+                      docker compose -f docker-compose.deploy.yml up -d --remove-orphans
+                    "
+                '''
+            }
+        }
+
+        stage('Production Validation') {
+            when {
+                branch 'main'
+            }
+            steps {
+                sh '''
+                    ssh $PRODUCTION_HOST "
+                      curl -fsS http://localhost:4343/api/menu > /dev/null &&
+                      curl -fsS -X POST http://localhost:4343/api/auth/login \
+                        -H 'Content-Type: application/json' \
+                        -d '{\"username\":\"demo\",\"password\":\"demo123\"}' > /dev/null &&
                       curl -fsS http://localhost:4242 > /dev/null
                     "
                 '''
