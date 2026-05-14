@@ -36,11 +36,11 @@ user-service'in yeni sürümüne (1.1.0) güncellememiz gerekiyor. Tek pod varsa
 
 Bu süre boyunca, sistem kesintiye uğrar. Kullanıcılar hizmet alamaz.
 
-Doğru yaklaşım, yeni pod'u başlattıktan sonra, eski pod'u kapatmak. Bu şekilde, hizmet kesintisiz devam eder. Ancak bunu manual olarak yapmak hataya açıktır.
+Doğru yaklaşım, yeni pod'u başlattıktan sonra, eski pod'u kapatmak. Bu şekilde, hizmet kesintisiz devam eder. Ancak bunu manuel olarak yapmak hataya açıktır.
 
 ### Çoğaltma Gereksinimi
 
-Talep yükseldiğinde, tek pod yetmez. Birden fazla pod çalıştırmalıyız. Eğer bunu manual olarak yaparsak:
+Talep yükseldiğinde, tek pod yetmez. Birden fazla pod çalıştırmalıyız. Eğer bunu manuel olarak yaparsak:
 
 ```bash
 kubectl apply -f user-service-pod-1.yaml
@@ -101,7 +101,7 @@ Pod kapanırsa, ReplicaSet yeniden başlatır. Pod sayısı 3'ün üzerinde çı
 ReplicaSet, iki sayıyı izler:
 
 **Desired (İstenilen)**: "kaç tane pod olmalı"
-**Actual (Mevcut)**: "kaç tane pod seçiliyorum"
+**Actual (Mevcut)**: "kaç tane pod çalışıyor"
 
 Örneğin:
 
@@ -207,8 +207,8 @@ spec:
 - image: Docker image
 - ports: Konteyner'in açığa çıkardığı portlar
 - resources: CPU ve bellek talep/sınırı
-- livenessProbe: Pod canlı mı? (5 saniyede bir kontrol)
-- readinessProbe: Pod talebe yanıt vermeye hazır mı? (10 saniyede bir kontrol)
+- livenessProbe: Pod canlı mı? (10 saniyede bir kontrol)
+- readinessProbe: Pod talebe yanıt vermeye hazır mı? (5 saniyede bir kontrol)
 
 ---
 
@@ -241,11 +241,11 @@ selector:
     app: user-service
 ```
 
-Bu, "app: user-service" label'ı olan tüm pod'ları seç" anlamına gelir.
+Bu, `app: user-service` label'ı olan tüm pod'ları seçmek anlamına gelir.
 
 ### Deployment ile Pod İlişkisi
 
-Deployment, selector kullanarak hangi pod'ları yönetecağını belirler. Pod template'de de aynı label'lar tanımlanır:
+Deployment, selector kullanarak hangi pod'ları yöneteceğini belirler. Pod template'de de aynı label'lar tanımlanır:
 
 ```yaml
 template:
@@ -306,7 +306,7 @@ Yeni bir pod (user-service-jkl012) başlatılmış. Neden? Çünkü ReplicaSet, 
 
 Deployment'ın hedefi, "her zaman 3 tane pod olsun" demektir. Eğer pod kapanırsa, bu hedef karşılanmaz. Deployment, bunu düzeltmeye çalışır.
 
-Yukarıda, pod manuel olarak siliniydi. Gerçek ortamda, pod hata verip kapanabilir. Deployment'ın bu otomatik iyileştirme özelliği, sistemin dayanıklılığını arttırır.
+Yukarıda, pod manuel olarak silinmişti. Gerçek ortamda pod hata verip kapanabilir. Deployment'ın bu otomatik iyileştirme özelliği, sistemin dayanıklılığını artırır.
 
 ---
 
@@ -347,7 +347,6 @@ user-service-def456            1/1     Running   0          20m
 user-service-ghi789            1/1     Running   0          20m
 user-service-jkl012            1/1     Running   0          15m
 user-service-mno345            1/1     Running   0          10s
-user-service-pqr678            1/1     Running   0          10s
 ```
 
 5 pod artık çalışıyor.
@@ -431,7 +430,7 @@ Bu ayarlar, güncelleme sırasında hizmet kesintisini minimum düzeyde tutar.
 
 ## 9. Rollout History ve Rollback
 
-Kubernetes, her Deployment güncellememesinin geçmişini tutanı.
+Kubernetes, her Deployment güncellemesinin geçmişini tutar.
 
 ### Rollout Geçmişi
 
@@ -445,7 +444,7 @@ REVISION  CHANGE-CAUSE
 3         <none>
 ```
 
-Belirli bir revizyon'un detaylarını görmek:
+Belirli bir revizyonun detaylarını görmek:
 
 ```bash
 kubectl rollout history deployment user-service --revision=2
@@ -491,15 +490,15 @@ Pod'un IP'si, pod yaşam boyu değişmez. Ancak pod silinirse, IP de gider. Yeni
 
 Deployment güncelleme sırasında, eski pod'lar silinir, yeni pod'lar başlatılır. Her yeni pod, farklı bir IP alır.
 
-Eğer bir uygulama, user-service'i "192.168.1.100 IP'deki pod'u çağır" şekline göre yazılmışsa, pod güncellendikten sonra, IP değişir ve bağlantı kopacak.
+Eğer bir uygulama, user-service'i "192.168.1.100 IP'deki pod'u çağır" şekline göre yazılmışsa pod güncellendikten sonra IP değişir ve bağlantı kopar.
 
 ### Sabit Erişim Katmanı Gereksinimi
 
-Biz istiyoruz ki, başvuruları bir "sabit" adrese göndersinler. Bu adres, arkaseında hangi pod'ların çalışıyor olduğunu açığa çıkarmasın.
+İstemcilerin istekleri sabit bir adrese gitsin isteriz. Bu adres, arkasında hangi pod'ların çalıştığını açığa çıkarmamalıdır.
 
 Bu işlevi sağlayan, Service'dir. Service şöyle çalışır:
 
-1. Stable bir IP adresi sağlar
+1. Sabit bir IP adresi sağlar
 2. Service'e gelen trafiğe, arkadaki pod'lara yönlendirir
 3. Pod'lar değişse bile, Service IP'si aynı kalır
 
@@ -724,7 +723,7 @@ Kubernetes Service'e erişebilirsiniz. Trafik, kubectl aracılığıyla yönlend
 
 ### Pod'a Direkt Bağlanmak
 
-Service yerine, doğrudan pod'a bağlanmak da mümkünde (test amaçlı):
+Service yerine doğrudan pod'a bağlanmak da mümkündür (test amaçlı):
 
 ```bash
 kubectl port-forward pod/user-service-abc123 8080:8080
@@ -756,7 +755,7 @@ ile uygulama sağlığını kontrol edebilirsiniz.
 
 **Yanlış:**
 
-Uygulama, spesifik pod'un IP'sini hardcode eder. Örneğin:
+Uygulama, belirli bir pod'un IP'sini sabit kodlar. Örneğin:
 
 ```java
 String userServiceUrl = "http://192.168.1.100:8080";
@@ -766,7 +765,7 @@ Bu, pod güncellendikten sonra kopacak.
 
 **Doğru:**
 
-Service kullan. Örneğin:
+Service kullanın. Örneğin:
 
 ```java
 String userServiceUrl = "http://user-service:8080";
@@ -782,7 +781,7 @@ Tüm pod'lar aynı namespace'de çalışıyor, birbirleriyle çakışıyor.
 
 **Doğru:**
 
-Clear label'lar kullanmak. Farklı uygulamalar:
+Açık ve tutarlı label'lar kullanmak. Farklı uygulamalar:
 
 ```yaml
 labels:
@@ -791,7 +790,7 @@ labels:
   environment: production
 ```
 
-Bu, sorgulamayı ve yönetimi güzelleştirir.
+Bu, sorgulamayı ve yönetimi kolaylaştırır.
 
 ### Service Olmadan Erişim Tasarlamak
 
@@ -998,4 +997,3 @@ user-service-5c6b8f6c4d-def34   1/1     Running   0           3m
 Sistem, 1.0.0 sürümüne dönmüştür.
 
 ---
-

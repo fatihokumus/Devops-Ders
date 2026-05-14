@@ -12,9 +12,9 @@ Bu komut, bir Docker konteynerini başlatır ve uygulamayı çalışır hâle ge
 
 ### Konteyner Yeniden Başlatma Sorunu
 
-Üretim ortamında çalışan konteyner, çeşitli nedenlerle kapanabilir. Belki uygulama içindeki bir hata meydana geldi, belki sunucu kilitlendi, belki sistem yöneticisi makinayı yeniden başlattı. Konteyner kapandığında, uygulama artık erişilebilir değildir.
+Üretim ortamında çalışan konteyner, çeşitli nedenlerle kapanabilir. Belki uygulama içindeki bir hata meydana geldi, belki sunucu kilitlendi, belki sistem yöneticisi makineyi yeniden başlattı. Konteyner kapandığında, uygulama artık erişilebilir değildir.
 
-Eğer biz bunu manuel olarak yönetiyorsak ne olur? Birisi kontrol paneline bağlanarak konteynerinin durumunu kontrol etmeli, konteyner kapanmışsa yeniden başlatmalıdır. Bu, otomasyonun tersidir. Ayrıca, konteyner üçüncü kali başarısız olduysa ne yapılacak? Sistem devam mı etmeli, yoksa hata bildirmeli mi? Bu kararlar kime ait?
+Eğer biz bunu manuel olarak yönetiyorsak ne olur? Birisi kontrol paneline bağlanarak konteynerinin durumunu kontrol etmeli, konteyner kapanmışsa yeniden başlatmalıdır. Bu, otomasyonun tersidir. Ayrıca, konteyner üçüncü kez başarısız olduysa ne yapılacak? Sistem devam mı etmeli, yoksa hata bildirmeli mi? Bu kararlar kime ait?
 
 Üretim sistemleri, belirli bir sayıda başarısızlık sonrası otomatik olarak harekete geçmelidir. Eğer konteyner art arda beş kez başlatıldıktan sonra kapanıyorsa, bu bir sorun işareti olabilir. Sistem yapılandırıcısı bu durumu ele almalıdır.
 
@@ -24,17 +24,17 @@ user-service uygulaması başarılı olmuş, gelen talep arttığını varsayal�
 
 Çözüm basit görünüyor: daha fazla konteyner çalıştırmak. Ancak nereye çalıştıracağız? Mevcut makine RAM ve CPU sınırlarına ulaştı. Başka bir makine satın almamız gerekir.
 
-Eğer manuel yönetim yapıyorsak, yeni makineyi kurmalı, konteynerı o makineye yayınlamalı, trafiği yeni makineye dağıtmak için bir load balancer yapılandırmalıyız. Birkaç saat iş. İsteği arttığında bu işi tekrar tekrar mı yapacağız?
+Eğer manuel yönetim yapıyorsak, yeni makineyi kurmalı, konteyneri o makineye yayınlamalı, trafiği yeni makineye dağıtmak için bir load balancer yapılandırmalıyız. Birkaç saat iş. Talep arttığında bu işi tekrar tekrar mı yapacağız?
 
 Üretim ortamlarında ölçekleme dinamik olmalıdır. Talep yükseldiğinde otomatik olarak konteyner sayısı artmalı, talep düştüğünde konteyner sayısı azalmalıdır. Bunu yapılandırmak günlük operasyon olmaktan ziyade, bir defa ayarlanması gereken politika olmalıdır.
 
 ### Servis Keşfi Sorunu
 
-Şimdi, user-service'in yanında başka bir mikro hizmet, order-service oluşturduğumuzu varsayalım. order-service, user-service'i çağırması gerekir, örneğin siparişi oluşturan kullanıcının bilgilerini almak için.
+Şimdi, user-service'in yanında başka bir mikro hizmet, order-service oluşturduğumuzu varsayalım. order-service'in user-service'i çağırması gerekir, örneğin siparişi oluşturan kullanıcının bilgilerini almak için.
 
 Eğer manuel yönetim yapıyorsak, order-service'de user-service'in sabit adresini yazarız. Örneğin: `http://192.168.1.100:8080`. Ancak sorun, user-service makinesi başarısız olursa ne olacağı. IP adresi değişecek. user-service'in başka bir makineye taşınması gerekebilir. O zaman order-service'deki konfigürasyonu güncellemeliyiz.
 
-Ayrıca, user-service'i ölçeklemesi durumunda ne olacak? Birkaç makineye yayılmış olacak. Order-service, bunlardan hangisine bağlanacak? Load balancer'ı elle yapılandıracak mıyız? Bu çok hata açısından risklidir.
+Ayrıca, user-service ölçeklenirse ne olacak? Birkaç makineye yayılmış olacak. Order-service, bunlardan hangisine bağlanacak? Load balancer'ı elle yapılandıracak mıyız? Bu çok hata açısından risklidir.
 
 Üretim ortamınız dinamik olduğunda (konteynerler dinamik olarak başlıyor ve kapanıyor), servis keşfi otomatik olmalıdır. Bir hizmet başladığında, diğer hizmetler otomatik olarak onu bulabilmelidir. Hizmetin adresi değişirse, diğerleri otomatik olarak yeni adresi bilmelidir.
 
@@ -42,7 +42,7 @@ Ayrıca, user-service'i ölçeklemesi durumunda ne olacak? Birkaç makineye yay�
 
 Bu sorunları çözmek için, sistemi yönetmek için merkezi bir yönetim katmanı gerekir. Bu katman:
 
-- Konteynerları nereye yerleştireceğini bilmeli
+- Konteynerleri nereye yerleştireceğini bilmeli
 - Konteyner başarısız olursa otomatik olarak başlamalı
 - Talep yükseldiğinde otomatik olarak ölçeklemelidir
 - Ağ trafiğini konteynerler arasında dağıtmalı
@@ -59,21 +59,21 @@ Basitçe, konteynerleri tek tek yönetmek değil, tümünü bir sistem olarak y�
 
 "Konteyner çalıştırmak" basit bir görevdir. `docker run` komutu çalıştırırsınız, konteyner başlar. Bu, dişçiye gitmek gibi: belirli, sınırlı bir görev.
 
-"Sistemi yönetmek" ise, tümüyle farklı bir görevdir. Sistemi yönetmek, konteynerlerin yaşam döngüsünü izlemek, başarısız olanları iyileştirmek, talebin yükselişi ve düşüşü ile uyum sağlamak, ağ bağlantılarını yönetmek anlamına gelir. Bu, bir şehri yönetmeğe benzer.
+"Sistemi yönetmek" ise, tümüyle farklı bir görevdir. Sistemi yönetmek, konteynerlerin yaşam döngüsünü izlemek, başarısız olanları iyileştirmek, talebin yükselişi ve düşüşü ile uyum sağlamak, ağ bağlantılarını yönetmek anlamına gelir. Bu, bir şehri yönetmeye benzer.
 
-İlk görev (konteyner çalıştırmak) Docker'ın işidir. Docker size "bu konteynerı başlat" kapabilirliğini verir.
+İlk görev (konteyner çalıştırmak) Docker'ın işidir. Docker size "bu konteyneri başlat" kabiliyetini verir.
 
 İkinci görev (sistemi yönetmek) Docker'ın yapamadığı şeydir. Docker, yalnızca tek makine üstünde çalışır. Konteyner başarısız olursa Docker onu yeniden başlatabilir. Ancak makine tamamen kapanırsa, Docker da kapanır. Makine arızalanırsa, konteyner başka bir makineye otomatik olarak taşınmaz.
 
 ### Otomatik Planlama İhtiyacı
 
-"Planlama" (scheduling), bir konteynerı çalışmak için uygun bir makineyi seçmek anlamına gelir. Biz, `docker run` komutunu çalıştırdığımız makineye konteyner gider. Başka seçeneğimiz yoktur.
+"Planlama" (scheduling), bir konteyneri çalıştırmak için uygun bir makineyi seçmek anlamına gelir. Biz `docker run` komutunu hangi makinede çalıştırırsak konteyner orada çalışır. Başka seçeneğimiz yoktur.
 
-Ancak 100 makineniz varsa ne yaparsınız? Hangi makineye hangi konteynerı yerleştireceğinize kim karar verir? Elle yapılamaz. Sistem, otomatik olarak karar çıkarmak için bir mekanizmaya ihtiyaç duyar.
+Ancak 100 makineniz varsa ne yaparsınız? Hangi makineye hangi konteyneri yerleştireceğinize kim karar verir? Elle yapılamaz. Sistem, otomatik olarak karar vermek için bir mekanizmaya ihtiyaç duyar.
 
 Planlama mekanizması:
 - Her makinenin ne kadar kaynağı (CPU, RAM) olduğunu bilmeli
-- Her konteynerın ne kadar kaynağa ihtiyacı olduğunu bilmeli
+- Her konteynerin ne kadar kaynağa ihtiyacı olduğunu bilmeli
 - Konteyneri, gerekli kaynaklara sahip bir makineye yerleştirmeli
 - Makinelerin dengeli şekilde yüklenmesini sağlamalı
 
@@ -84,13 +84,13 @@ Bunun insan tarafından yapılması, ölçeklenebilir değildir.
 Sistem başladıktan sonra, sürüp gitmesi gerekir. Ancak az sonra neler olabilir:
 
 - Bir konteyner hata verdi ve kapandı. Otomatik olarak yeniden başlamalı.
-- Bir makine çöktü. O makinada çalışan konteynerler başka makinelere taşınmalı.
-- Bir makine kaynakları yetersiz kaldı. İçindeki konteynerların bazıları başka makinelere taşınmalı.
-- Bir konteyner aşırı kaynak tüketmeye başladı. Sınırlandırılmalı veya işlenmeli.
+- Bir makine çöktü. O makinede çalışan konteynerler başka makinelere taşınmalı.
+- Bir makine kaynakları yetersiz kaldı. İçindeki konteynerlerin bazıları başka makinelere taşınmalı.
+- Bir konteyner aşırı kaynak tüketmeye başladı. Sınırlandırılmalı veya sonlandırılmalı.
 
 Bu olayları biri izlemeli ve harekete geçmeli. Eğer insan izlemiyorsa, sistem otomatik olarak izlemeli.
 
-Container orchestration, bu problemleri çözen bir sistemi yönetim platformudur.
+Container orchestration, bu problemleri çözen bir sistem yönetim platformudur.
 
 ---
 
@@ -98,7 +98,7 @@ Container orchestration, bu problemleri çözen bir sistemi yönetim platformudu
 
 ### Kubernetes Nedir?
 
-Kubernetes, konteyner uygulamalarını ölçülü bir şekilde çalıştırmak, yönetmek ve dağıtmak için açık kaynaklı bir platformdur. Google tarafından başlangıçta dahili olarak geliştirilen Borg adlı sistem'in fikirlerinden esinlenilerek oluşturulmuştur ve 2014'te açık kaynak hâline getirilmiştir.
+Kubernetes, konteyner uygulamalarını ölçülü bir şekilde çalıştırmak, yönetmek ve dağıtmak için açık kaynaklı bir platformdur. Google tarafından başlangıçta dahili olarak geliştirilen Borg adlı sistemin fikirlerinden esinlenilerek oluşturulmuştur ve 2014'te açık kaynak hâline getirilmiştir.
 
 Kubernetes, container orchestration sorunlarını doğrudan ele alır. Konteyner çalıştırmaktan ziyade, konteyner tabanlı uygulamaları yönetmeye odaklanır.
 
@@ -116,15 +116,15 @@ Kubernetes aşağıdaki sorunları çözer:
 
 5. **Otomatik servis keşfi**: Konteynerler otomatik olarak ağda keşfedilir. DNS adları otomatik olarak atanır.
 
-6. **Depolama düzenlemesi (storage orchestration)**: Konteynerlar kalıcı depolama (persistent storage) bağlayabilir ve başka yere taşınabilir.
+6. **Depolama düzenlemesi (storage orchestration)**: Konteynerler kalıcı depolama (persistent storage) bağlayabilir ve başka yere taşınabilir.
 
-7. **Düşük kaynak tüketimi**: Kubernetes, sistem kaynaklarını verimli bir şekilde kullanarak konteynerleri tercih edilen dağıtır.
+7. **Düşük kaynak tüketimi**: Kubernetes, sistem kaynaklarını verimli bir şekilde kullanarak konteynerleri tercih edilen şekilde dağıtır.
 
 ### Neden Modern Deployment Sistemlerinin Merkezinde Yer Aldığı
 
 Üretim ortamlarında yazılım dağıtmak, konteyner teknolojisinin ortaya çıkması ile radikal şekilde değişti. Sanal makinelerden farklı olarak, konteynerler hafif ve hızlıdır. Ancak bu hafiflik, yönetimi de karmaşık hale getiriyor. Binlerce konteyner çalıştırmak, bunu manuel olarak yapmak imkânsızdır.
 
-Kubernetes, bu ölçekte yönetimi mümkün kılmıştır. Kubernetes'in sayesinde, bir konfigürasyon dosyasıyla yüzlerce makine ve binlerce konteyner yönetilebilir. Bu, DevOps'un temelini oluşturur. Eğer Kubernetes'iniz varsa, manuel müdahale ihtiyacı minimum düzeye iner. Sistem kendi kendine çalışır ve gereken durumlarda iyileştirme yapar.
+Kubernetes, bu ölçekte yönetimi mümkün kılmıştır. Kubernetes sayesinde, bir konfigürasyon dosyasıyla yüzlerce makine ve binlerce konteyner yönetilebilir. Bu, DevOps'un temelini oluşturur. Eğer Kubernetes'iniz varsa, manuel müdahale ihtiyacı minimum düzeye iner. Sistem kendi kendine çalışır ve gereken durumlarda iyileştirme yapar.
 
 Günümüzde, cloud ortamlarında konteyner tabanlı uygulamalar çalıştırmak neredeyse Kubernetes ile eşanlamlıdır. AWS'de Elastic Kubernetes Service (EKS), Azure'da Azure Kubernetes Service (AKS), Google Cloud'da Google Kubernetes Engine (GKE) gibi yönetilen Kubernetes hizmetleri mevcuttur. Bu, Kubernetes'in endüstri standardı hâline geldiğini gösterir.
 
@@ -134,7 +134,7 @@ Günümüzde, cloud ortamlarında konteyner tabanlı uygulamalar çalıştırmak
 
 ### Cluster Nedir?
 
-Kubernetes'de bir cluster, Kubernetes tarafından yönetilen makinelerin (nodes) bir grubudur. Cluster, bir işletme olarak düşünülebilir: üretim hattı (worker nodes), yönetim merkezi (control plane), iş sahipleri (konteynerler) ve kurallar (policies) vardır.
+Kubernetes'te bir cluster, Kubernetes tarafından yönetilen makinelerin (nodes) bir grubudur. Cluster, bir işletme olarak düşünülebilir: üretim hattı (worker nodes), yönetim merkezi (control plane), iş sahipleri (konteynerler) ve kurallar (policies) vardır.
 
 Bir cluster'ın minimum yapısı:
 
@@ -148,7 +148,7 @@ Bir cluster'ın minimum yapısı:
 
 ### Tek Makine ile Cluster Mantığı Arasındaki Fark
 
-Tek bir makineyi inceleyelim. Makinde birkaç konteyner çalıştırıyoruz:
+Tek bir makineyi inceleyelim. Makinede birkaç konteyner çalıştırıyoruz:
 
 ```
 Makine (192.168.1.100)
@@ -171,11 +171,11 @@ Makine 2 (192.168.1.101)
 └── payment-service konteyner
 ```
 
-Order-service, user-service'i çağırmak istiyor. Ancak user-service iki makineye yayılmış. Hangisini çağıracak? Eğer 192.168.1.100 makinesini çağırırsa, load balancer olmadığı için talep dengeli dağıtılmaz. Eğer 192.168.1.101'e Makine 1'den bir linking yaparsa, ağ trafiği makineler arasında seksiyon yapıp verimsiz olur.
+Order-service, user-service'i çağırmak istiyor. Ancak user-service iki makineye yayılmış. Hangisini çağıracak? Eğer yalnızca 192.168.1.100 adresine bağlanırsa, yük dengeli dağılmaz. Bu bağlantıları manuel yönetmek de ağı karmaşıklaştırır ve trafiği verimsiz hâle getirir.
 
-Cluster mantığında, Kubernetes bu detaylı yönetimi sizden almır. Siz, "5 tane user-service kopya çalıştır, 2 tane order-service çalıştır" dersiniz. Kubernetes:
+Cluster mantığında, Kubernetes bu detaylı yönetimi sizden alır. Siz, "5 tane user-service kopya çalıştır, 2 tane order-service çalıştır" dersiniz. Kubernetes:
 
-- Bu konteynerları küme içindeki uygun makinelere dağıtır
+- Bu konteynerleri küme içindeki uygun makinelere dağıtır
 - Ağ bağlantısını otomatik olarak kurar
 - Servis keşfi yönetir (DNS adları oluşturur)
 - Load balancing gerçekleştirir
@@ -195,17 +195,17 @@ Cluster'ı yönetmek ve karar vermek için gereken bileşenleri içerir. "Beyin"
 - Kullanıcıdan gelen komutları alır
 - Küme durumunu izler
 - Konteynerleri yerleştirmek için karar verir
-- Küme ayarlarını saklır
+- Küme ayarlarını saklar
 
 ### Worker Node (İşçi Düğüm)
 
-Gerçek konteynerler burada çalışır. Birçok işçi olabilir. Her işçü, birçok konteyner çalıştırabilir.
+Gerçek konteynerler burada çalışır. Birçok işçi olabilir. Her işçi, birçok konteyner çalıştırabilir.
 
 ### Aralarındaki İletişim
 
 Control plane'den worker node'lara şu tür mesajlar gider:
 
-"Şu konteyner'ı başlat"
+"Şu konteyneri başlat"
 "Şu pod'ı kaldır"
 "Sistem sağlığını kontrol et"
 
@@ -215,7 +215,7 @@ Worker node'lardan control plane'e geri:
 "CPU kullanımı %80"
 "Pod kapandı"
 
-Bu, control plane'ye, cluster'ın mevcut durumunu bildir. Kubernetes, bu bilgi ile "desired state" (istenilen durum) ile karşılaştırır.
+Bu, control plane'ye, cluster'ın mevcut durumunu bildirir. Kubernetes, bu bilgi ile "desired state" (istenilen durum) ile karşılaştırır.
 
 ---
 
@@ -237,7 +237,7 @@ Bu komut, pod bilgilerini API sunucusuna gönderir. API sunucusu:
 
 1. İsteği doğrular (yaml'nin geçerli olup olmadığını kontrol eder)
 2. İsteği etcd'ye kaydeder
-3. Diğer bileşenlere haberini verir
+3. Diğer bileşenlere haber verir
 
 Siz de pod durumunu sormak istediğinizde:
 
@@ -249,18 +249,18 @@ Bu istek de API sunucusuna gider. API sunucusu, etcd'den bilgiler alır, size ce
 
 ### etcd (Distributed Key-Value Store)
 
-etcd, Kubernetes'in veritabanıdır. Küme'nin bütün sayı ("desired state") burada saklanır.
+etcd, Kubernetes'in veritabanıdır. Kümenin bütün durumu ("desired state") burada saklanır.
 
 Örneğin:
 - "user-service-pod adında bir pod olmalı", etcd'de saklanır
 - Pod'a ait etiketler, etcd'de saklanır
 - Konfigürasyon, etcd'de saklanır
 
-etcd, dağıtık bir sistemdir. Birden fazla control plane node varsa, etcd replikasyon yaparak verileri synchronized tutuo. Bu, yüksek kullanılabilirlik sağlar.
+etcd, dağıtık bir sistemdir. Birden fazla control plane node varsa, etcd replikasyon yaparak verileri senkronize tutar. Bu, yüksek kullanılabilirlik sağlar.
 
 ### kube-scheduler (Planlayıcı)
 
-Scheduler, konteynerların nereye yerleştirileceğini karar verir.
+Scheduler, konteynerlerin nereye yerleştirileceğine karar verir.
 
 Siz "yeni bir pod çalıştır" dediğinizde, scheduler:
 
@@ -269,38 +269,38 @@ Siz "yeni bir pod çalıştır" dediğinizde, scheduler:
 3. Optimal node'u seçer
 4. Pod'u o node'a yerleştirmek üzere işareti koyar
 
-Bu, otomatik bir işlemdir. Siz "bu makinaya yerleştirilsin" diye söylemezsiniz.
+Bu, otomatik bir işlemdir. Siz "bu makineye yerleştirilsin" diye söylemezsiniz.
 
 ### kube-controller-manager (Denetleyici Yöneticisi)
 
 Controller manager, Kubernetes'in "kalbi" gibi çalışır. Sürekli olarak cluster'ı izler ve istenilen durumu (desired state) mevcut duruma yaklaştırmaya çalışır.
 
-Örneğin, siz "3 tane user-service replikası çalıştır" dediğinizdi. Controller manager:
+Örneğin, siz "3 tane user-service replikası çalıştır" dediğinizde. Controller manager:
 
-1. "3 replika olmalı" gereksinimini yapılandırda bulur
+1. "3 replika olmalı" gereksinimini yapılandırmada bulur
 2. Şu anda kaç replika çalışıyor kontrol eder
 3. Eğer 2 çalışıyorsa, 1 tane daha başlatır
 4. Eğer 4 çalışıyorsa, 1 tanesini kapatır
 
-Bu, başlangıcında bir kez yapılmaz. Sistem sürekli olarak bu kontrol eder. Bir pod'un kapanması durumunda, controller manager bunu fark eder ve otomatik olarak yeni bir pod başlatır.
+Bu işlem yalnızca başlangıçta bir kez yapılmaz. Sistem bunu sürekli kontrol eder. Bir pod kapanırsa controller manager bunu fark eder ve otomatik olarak yeni bir pod başlatır.
 
 ---
 
 ## 7. Worker Node Bileşenleri
 
-Worker node'u, Kubernetes'in "üretim hattı" olarak düşünebilirsiniz. Bunsunda konteynerler gerçekten çalışır.
+Worker node'u, Kubernetes'in "üretim hattı" olarak düşünebilirsiniz. Burada konteynerler gerçekten çalışır.
 
 ### kubelet (İşçi Ajanı)
 
-Kubelet, worker node üzerinde çalışan aracıdır. Control plane'den gelen talmatları alır ve gerçekten uygular.
+Kubelet, worker node üzerinde çalışan aracıdır. Control plane'den gelen talimatları alır ve gerçekten uygular.
 
 Örneğin, scheduler "user-service pod'u node-5'e yerleştirilsin" kararı verirse, kubelet:
 
-1. Bu talimatlı API sunucusundan alır
+1. Bu talimatı API sunucusundan alır
 2. Container runtime'a "bu image'dan konteyner oluştur" der
 3. Konteyner başlatıldıktan sonra, bu bilgiyi API sunucusuna rapor eder
 
-Kubelet aynı zamanda, konteyner sağlığını izler. Konteyner başarısız olursa bunu farkeder ve yeniden başlatılması gerektiğini rapor eder.
+Kubelet aynı zamanda, konteyner sağlığını izler. Konteyner başarısız olursa bunu fark eder ve yeniden başlatılması gerektiğini rapor eder.
 
 ### kube-proxy (Ağ Vekili)
 
@@ -385,15 +385,15 @@ Bu mekanizmaya "reconciliation loop" denir. Kubernetes'i güçlü kılan, bu bas
 
 ### Pod Nedir?
 
-Pod, Kubernetes'deki en küçük çalıştırılabilir birimdir. Pod, bir veya birden fazla konteyner içerir.
+Pod, Kubernetes'teki en küçük çalıştırılabilir birimdir. Pod, bir veya birden fazla konteyner içerir.
 
-Önemli bir nokta: Pod, container DEĞILDIR. Pod, container'ları TUTUŞ bir yapıdır. Kubernetes, container'ları doğrudan yönetmez. Pod'ları yönetir.
+Önemli bir nokta: Pod, container DEĞİLDİR. Pod, container'ları TUTAN bir yapıdır. Kubernetes, container'ları doğrudan yönetmez. Pod'ları yönetir.
 
 ### Neden Container Değil Pod Yönetilir?
 
-Docker'da, konteyner birbirinden tümüyle izole edilmiştir. Her konteyner'ın kendi ağ interface'i, kendi dosya sistemi var.
+Docker'da, konteynerler birbirinden tümüyle izole edilmiştir. Her konteynerin kendi ağ arayüzü ve kendi dosya sistemi vardır.
 
-Kubernetes'de ise, genellikle bir pod'un içindeki konteynerlerin işbirliği gerekmektedir.
+Kubernetes'te ise, genellikle bir pod'un içindeki konteynerlerin işbirliği gerekmektedir.
 
 Örneğin:
 - Ana uygulama konteyner: user-service
@@ -439,7 +439,7 @@ Bu pod, iki konteyner içerir. İkisi aynı anda başlar, aynı anda kapanır.
 
 ### Paylaşılmış Ağ Bağlamı
 
-Bir pod içindeki tüm konteynerler, aynı ağ interface'i paylaşır. Bu, onların:
+Bir pod içindeki tüm konteynerler, aynı ağ arayüzünü paylaşır. Bu, onların:
 
 - Aynı IP adresine sahip olması
 - Localhost üzerinden birbirine bağlanabilmesi
@@ -502,7 +502,7 @@ Bu komut:
 - Konteyner başlatmak için
 - 8080 portunda erişilebilir kılmak için
 
-Kubernetes'de ise, biz bu detaylara sahip olmuyoruz. Yerine, deklaratif bir tanım veriyoruz.
+Kubernetes'te ise, biz bu detaylara sahip olmuyoruz. Yerine, deklaratif bir tanım veriyoruz.
 
 ### Pod Manifest Tanımı
 
@@ -538,7 +538,7 @@ Bu manifest'i açıklamak gerekir:
 - Kubernetes API sürümü
 
 **kind: Pod**
-- Ne oluşturduğumüz (pod)
+- Ne oluşturduğumuz (pod)
 
 **metadata**
 - Pod hakkında bilgiler
@@ -594,7 +594,7 @@ Pod'un log'larını görmek:
 kubectl logs user-service-pod
 ```
 
-Eğer pod birden fazla konteyner içerse, hangi konteyner'ın log'unu istediğinizi belirtmelisiniz:
+Eğer pod birden fazla konteyner içerse, hangi konteynerin logunu istediğinizi belirtmelisiniz:
 
 ```bash
 kubectl logs user-service-pod -c user-service
@@ -612,9 +612,9 @@ kubectl logs user-service-pod -c user-service
 kubectl run user-service-pod --image=registry.example.com/user-service:1.0.0 --port=8080
 ```
 
-Bu komut, Kubernetes'e "git, bu image'dan pod oluştur, 8080 portunda çal" der. Anında çalışır.
+Bu komut, Kubernetes'e "git, bu image'dan pod oluştur, 8080 portunda çalıştır" der. Anında çalışır.
 
-Sorun: Eğer bir daha aynı pod'u beden ortamında oluşturmak isterse, komutu hatırlamanız gerekir. Eğer komutu unutursanız veya yanlış yazarsanız, farklı bir sonuç alırsınız.
+Sorun: Eğer bir daha aynı pod'u benzer bir ortamda oluşturmak istersek, komutu hatırlamamız gerekir. Komutu unutursak veya yanlış yazarsak, farklı bir sonuç alırız.
 
 **Declarative (Bildirimsel) Yaklaşım:**
 
@@ -624,13 +624,13 @@ kubectl apply -f user-service-pod.yaml
 
 `user-service-pod.yaml` dosyası, "pod hangi durumda olması gerektiği" tanımlar. Kubernetes, bu durumu korumaya çalışır.
 
-Avantaj: YAML dosyası kaynak kontrolü altında tutulebilir (Git'e kaydedilebilir). Aynı konfigürasyonu tekrar tekrar uygulanabilir. Değişiklikler takip edilebilir.
+Avantaj: YAML dosyası kaynak kontrolü altında tutulabilir (Git'e kaydedilebilir). Aynı konfigürasyonu tekrar tekrar uygulanabilir. Değişiklikler takip edilebilir.
 
 ### Neden YAML Kullanıldığı
 
 YAML, insan tarafından okunabilir bir formatdır. JSON da kullanılabilir, fakat YAML daha basittir.
 
-YAML kurtarım:
+YAML örneği:
 
 ```yaml
 - İsim: user-service-pod
@@ -651,7 +651,7 @@ JSON:
 }
 ```
 
-YAML daha okunaklı. Ayrıca, Kubernetes ekosistemi YAML'ye standardlaştığı için bütün örnekler YAML'de bulunur.
+YAML daha okunaklı. Ayrıca, Kubernetes ekosistemi YAML'de standartlaştığı için bütün örnekler YAML'de bulunur.
 
 ### Declarative Yönetim Avantajları
 
@@ -659,7 +659,7 @@ YAML daha okunaklı. Ayrıca, Kubernetes ekosistemi YAML'ye standardlaştığı 
 
 2. **Versiyon Kontrol**: YAML dosyasını Git'e saklayabilirsiniz. Değişiklik geçmişi takip edilir.
 
-3. **Otomatimeleme**: CI/CD pipelineları, pod'u dağıtırken YAML dosyasını referans alabilir.
+3. **Otomasyon**: CI/CD pipelineları, pod'u dağıtırken YAML dosyasını referans alabilir.
 
 4. **Denetlenebilirlik**: Kim ne dağıttığını ve neden dağıttığını görebilirsiniz.
 
@@ -793,7 +793,7 @@ Pod silindiğinde, içindeki konteyner de kapatılır.
 
 ## 13. Pod Yaşam Döngüsüne Giriş
 
-Pod'un, yaşamboyu çeşitli durumlardan geçer.
+Pod'un, yaşamı boyunca çeşitli durumlardan geçer.
 
 ### Pending (Beklemede)
 
@@ -850,7 +850,7 @@ Bu durumda, `kubectl logs` kullanarak hata mesajlarını incelemek gerekir.
 
 ### Namespace Nedir?
 
-Namespace, Kubernetes kümesi içinde mantıksal yol bölümü oluşturmak için kullanılır.
+Namespace, Kubernetes kümesi içinde mantıksal bölümlendirme oluşturmak için kullanılır.
 
 Basit örnek:
 
@@ -871,7 +871,7 @@ Her namespace, özel bir kuruluş alanıdır. Kaynaklar, namespace içinde yalı
 
 ### Neden Gerekli?
 
-1. **İzolasyon**: Farklı ekipler, farklı namespaces'de çalışabilir. Birer namespace başka namespace'deki kaynakları tamamen etkilemez.
+1. **İzolasyon**: Farklı ekipler, farklı namespaces'de çalışabilir. Bir namespace başka namespace'deki kaynakları tamamen etkilemez.
 
 2. **Kaynak Yönetimi**: Her namespace'e kaynak kotları atanabilir. Örneğin, development namespace'i maksimum 10 CPU, production maksimum 50 CPU kullanabilir.
 
@@ -925,13 +925,13 @@ Bunu, üç ayrı pod oluşturmak için yapıyorsunuz. Ancak, Docker düzeyinde d
 
 **Doğru yaklaşım:**
 
-Deployment kullanmak (bu sonraki bölümde anlatılacak) veya DeploymentSet. Kubernetes, replikaları otomatik olarak yönetir.
+Deployment kullanmak (bu sonraki bölümde anlatılacak) veya ReplicaSet. Kubernetes, replikaları otomatik olarak yönetir.
 
 ### YAML'ı Anlamadan Ezberlemek
 
 **Yanlış yaklaşım:**
 
-Internetten bulup bir YAML dosyasını kopyala-yapıştır olarak kullanmak ve ne yaptığı anlamadan çalıştırmak.
+İnternetten bulup bir YAML dosyasını kopyala-yapıştır olarak kullanmak ve ne yaptığı anlamadan çalıştırmak.
 
 **Doğru yaklaşım:**
 
@@ -939,7 +939,7 @@ Her satırın ne yaptığını anlamak. Kendi manifest'lerinizi yazabilmek.
 
 ### Pod ile Deployment'ı Karıştırmak
 
-Pod, tek bir konteyner instance'ıdır. Eğer pod kapanırsa Kubernetes otomatik olarak yeniden başlatmaz.
+Pod, tek bir çalışma birimidir. Pod silinirse Kubernetes onu kendiliğinden yeniden oluşturmaz.
 
 Bu bölümde biz pod kullanıyoruz, ama üretim ortamlarında pod doğrudan kullanılmaz. Deployment kullanılır. Deployment, pod'ları yönetir ve otomatik olarak yeniden başlatmalarını sağlar.
 
@@ -949,7 +949,7 @@ Bu bölümde biz pod kullanıyoruz, ama üretim ortamlarında pod doğrudan kull
 kubectl run user-service-pod --image=registry.example.com/user-service:1.0.0
 ```
 
-Bu komut, pod oluşturur, ama eğer pod kapanırsa, Kubernetes yeniden başlatmaz (yeterli ki bende hata var, kubelet pod'u yeniden başlatır ama başarısız kapanış ile ilgilenmiyor).
+Bu komut pod oluşturur; pod silinirse yerine yeni bir pod oluşturulmaz. Bu yüzden üretimde Deployment tercih edilir.
 
 **Doğru (sonraki bölümde öğrenilecek):**
 
@@ -968,9 +968,8 @@ docker restart container-id
 
 **Doğru yaklaşım:**
 
-Pod'u siliniz, Kubernetes otomatik olarak yeniden başlatmasını sağlayabilir. Veya, sorunu çözün (örneğin image'ı güncelle) ve pod'u yeniden boyun.
+Pod'u silin; eğer bir Deployment tarafından yönetiliyorsa Kubernetes yeni bir pod oluşturur. Ayrıca sorunu çözün (örneğin image'ı güncelleyin) ve dağıtımı yeniden uygulayın.
 
-Elle müdahale, sistem tutarsızlığına ve hataların tekrarlanmastna neden olur.
+Elle müdahale, sistem tutarsızlığına ve hataların tekrarlanmasına neden olur.
 
 ---
-

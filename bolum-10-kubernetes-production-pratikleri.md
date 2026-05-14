@@ -15,7 +15,7 @@ user-service aynı Docker image'ını, geliştirme, test, staging ve production 
 - **API endpoints**: Test ortamında mock API'lar, production'da gerçek hizmetler
 - **Cache ayarları**: Her ortamda farklı Redis instance'ı
 
-Aynı image kullanarak bu farklılıkları nasıl yönetebiliriz? Kod içine environment'lara özel şeyler gömemez.
+Aynı image kullanarak bu farklılıkları nasıl yönetebiliriz? Kod içine ortama özel değerler gömülemez.
 
 ### Yapılandırma Ayrımı
 
@@ -25,19 +25,19 @@ Bu, "12 Factor App" prensiplerinden biridir: konfigürasyonu ortamdan okuyun.
 
 ### Güvenlik
 
-user-service, PostgreSQL veritabanına bağlanması gerekiyor. Bağlantı için kullanıcı adı ve parola gerekir. Bunu image'ın içine gömemez - bu ciddi güvenlik açığıdır.
+user-service'in PostgreSQL veritabanına bağlanması gerekiyor. Bağlantı için kullanıcı adı ve parola gerekir. Bunu image'ın içine gömmek ciddi bir güvenlik açığıdır.
 
-Paraola ve API key'ler gibi hassas bilgiler, ayrı bir şekilde yönetilmeli. Kubernetes, bunu Secret mekanizması ile sağlıyor.
+Parola ve API key'ler gibi hassas bilgiler ayrı şekilde yönetilmeli. Kubernetes bunu Secret mekanizması ile sağlar.
 
 ### Kalıcılık
 
-PostgreSQL, verileri disk üzerinde saklıyor. Eğer PostgreSQL pod'u yeni bir node'a taşınırsa, verileri de ile gitmesi gerekir. Aksi takdirde, tüm veriler kaybolur.
+PostgreSQL, verileri disk üzerinde saklıyor. Eğer PostgreSQL pod'u yeni bir node'a taşınırsa, verilerin de onunla gitmesi gerekir. Aksi takdirde, tüm veriler kaybolur.
 
-Kubernetes, bunu PersistentVolume mekanizmu ile çözdü.
+Kubernetes, bunu PersistentVolume mekanizması ile çözer.
 
 ### Sağlık Kontrolü
 
-Deployment pod'u başlatıyor. Ancak pod başladı = uygulama hazır mı? Belki uygulama still başlıyoruz, veya database bağlantısı başarısız oldu.
+Deployment pod'u başlatır. Ancak pod'un başlaması, uygulamanın hazır olduğu anlamına gelmez. Uygulama hâlâ açılıyor olabilir veya veritabanı bağlantısı başarısız olabilir.
 
 Kubernetes'e "uygulamanın gerçekten hazır olmasını kontrol et" demek gerekir.
 
@@ -47,7 +47,7 @@ Kubernetes'e "uygulamanın gerçekten hazır olmasını kontrol et" demek gereki
 
 ### Neden Gereklidir
 
-ConfigMap, Kubernetes'de konfigürasyon verilerini tutmak için kullanılan bir kaynaktır.
+ConfigMap, Kubernetes'te konfigürasyon verilerini tutmak için kullanılan bir kaynaktır.
 
 Örneğin, user-service'in çeşitli ayarlarını ConfigMap'te sakladığımız:
 
@@ -57,7 +57,7 @@ ConfigMap, Kubernetes'de konfigürasyon verilerini tutmak için kullanılan bir 
 - Feature flags
 - Timeout değerleri
 
-Bu veriler, pod çalışırken environment variable olarak pod'a enjekte edilir.
+Bu veriler, pod çalışırken ortam değişkeni olarak pod'a enjekte edilir.
 
 ### Environment'dan Farkı
 
@@ -71,7 +71,7 @@ export LOG_LEVEL=INFO
 
 Sonra uygulama başlatırız ve uygulama bu değişkenleri okur.
 
-Kubernetes'te de benzer mantık var, ama Version kontrol altında yapılır. ConfigMap'i Git'te saklayabilir, kimin ne değiştiğini görebilir, geri dönebilirsiniz.
+Kubernetes'te de benzer mantık vardır, ama bu süreç versiyon kontrolü altında yürütülür. ConfigMap'i Git'te saklayabilir, kimin neyi değiştirdiğini görebilir ve geri dönebilirsiniz.
 
 ConfigMap şu açıdan farklı:
 
@@ -97,7 +97,7 @@ Parola, API key, token gibi **sensitive** veriler ConfigMap'te tutulmaz. Onlar S
 
 ## 3. User-Service için ConfigMap Örneği
 
-user-service, PostgreSQL veritabanına bağlanıyor. Bağlantı ayarlarını ConfigMap'te tutelim:
+user-service, PostgreSQL veritabanına bağlanıyor. Bağlantı ayarlarını ConfigMap'te tutalım:
 
 ```yaml
 apiVersion: v1
@@ -185,7 +185,7 @@ DB_PORT:
 
 ConfigMap'te, non-sensitive veriler tutulur. Ancak hassas bilgiler (parola, API key, müşteri sırrı) tutulmamalı.
 
-Neden? Çünkü ConfigMap'terin içeriği şifrelenmez. Cluster yöneticileri, `kubectl describe` ile içeriği görebilir.
+Neden? Çünkü ConfigMap'lerin içeriği şifrelenmez. Cluster yöneticileri, `kubectl describe` ile içeriği görebilir.
 
 ```bash
 kubectl describe configmap my-config
@@ -195,7 +195,7 @@ password: mySecretPassword  # Şifrelenmemiş, açık metin
 api_key: xyz123abc         # Şifrelenmemiş
 ```
 
-Secret ise, verileri base64 ile şifreler (gerçek şifreleme değil, ama durumu teknik açıdan iyileştirir). Ayrıca, etcd'ye deposu sırasında TLS ile şifrelenebilir.
+Secret ise verileri base64 ile kodlar (bu gerçek şifreleme değildir). Ayrıca etcd'ye yazım sırasında TLS ile korunabilir.
 
 ### Parola, Token, API Key Örnekleri
 
@@ -232,7 +232,7 @@ Daha iyi güvenlik istiyorsanız, HashiCorp Vault gibi harici bir secret yöneti
 
 ## 5. User-Service için Secret Örneği
 
-user-service, PostgreSQL'e parolayla bağlanıyor. Parolayı Secret'ta tutelim:
+user-service, PostgreSQL'e parolayla bağlanıyor. Parolayı Secret'ta tutalım:
 
 ```yaml
 apiVersion: v1
@@ -280,7 +280,7 @@ ConfigMap ve Secret oluşturduk. Şimdi, bunları pod'a nasıl aktarırız?
 
 ### Yöntem 1: envFrom (Toplu Aktarım)
 
-ConfigMap'teki tüm veriler, pod'un environment variable'larına dönüştürülür:
+ConfigMap'teki tüm veriler, pod'un ortam değişkenlerine dönüştürülür:
 
 ```yaml
 apiVersion: apps/v1
@@ -301,7 +301,7 @@ spec:
         - name: user-service
           image: registry.example.com/user-service:1.0.0
           
-          # ConfigMap'teki tüm veriler env variable olarak eklenir
+          # ConfigMap'teki tüm veriler ortam değişkeni olarak eklenir
           envFrom:
             - configMapRef:
                 name: user-service-config
@@ -416,11 +416,11 @@ Bu yöntem, konfigürasyon dosyalarını (JSON, YAML) temsil eden uygulamalar i�
 
 ### User-Service Stateless
 
-user-service, bir REST API'dır. Request'i alıyor, işliyor, response döndürüyor. Ardından bu request'i hatırlamıyor.
+user-service bir REST API'dır. İsteği alır, işler ve yanıt döndürür. Ardından bu isteği hatırlamaz.
 
 Bir request'i pod-1'e göndersek, sonraki request'i pod-2'ye göndersek, sorun yok. Her pod bağımsız.
 
-Bu, **stateless** yapı. Stateless uygulamalar, kolayca ölçeklenebilir ve high-available yapılabilir.
+Bu, **stateless** yapıdır. Stateless uygulamalar kolayca ölçeklenebilir ve yüksek erişilebilir şekilde çalıştırılabilir.
 
 ### PostgreSQL Stateful
 
@@ -590,8 +590,8 @@ Kubernetes:
 
 Probe'lar olmadan:
 
-1. Container crash'leyebilir, baştan başlatılmaz
-2. Pod hata veriyorsa de talep alıyor, kullanıcılar mutsuz
+1. Container çökebilir ve yeniden başlatılmaz
+2. Pod hata veriyorsa da talep alıyor, kullanıcılar mutsuz
 3. Deployment update sırasında hazır olmayan pod'lar talep alabilir
 
 Probe'lar, sistem güvenilirliğini sağlar.
@@ -688,7 +688,7 @@ Başarısız durum: HTTP 503 Service Unavailable
 
 Kubernetes, cluster'daki kaynakları (CPU, bellek) yönetir. Scheduler, pod'ları nereye yerleştireceğini kaynağa göre belirler.
 
-Eğer requests ve limits koymassanız:
+Eğer requests ve limits koymazsanız:
 
 1. Scheduler, pod'u nereye yerleştireceğini bilemez
 2. Bir pod aşırı kaynak tüketebilir, diğer pod'ları öldürebilir ("noisy neighbor" problemi)
@@ -714,13 +714,13 @@ Scheduler:
 
 Node'da 1000m CPU varsa, 10 tane user-service pod'u yerleştirebilir (10 * 100m = 1000m).
 
-Eğer requests koymazsanız, Kubernetes "0 kaynak istiyoruz" gibi davranabilir ve disk disk pod'u aşırı yükleyebilir.
+Eğer requests koymazsanız, Kubernetes "0 kaynak istiyoruz" gibi davranabilir ve tek bir node'u aşırı yükleyebilir.
 
 ### Aşırı Tüketim ve Noisy Neighbor Problemi
 
 Pod-1 bellekte 512Mi limitlenmiş, ama bir bellek leak'i var. Pod, belleği aşırı kullanmaya çalışıyor. Kubernetes onu durdurur (OOMKilled).
 
-Limit olmadan, Pod-1 tüm belleği kullanır, diğer pod'lar star kalır.
+Limit olmadan Pod-1 tüm belleği kullanır ve diğer pod'lar kaynak yetersizliği yaşar.
 
 Limits, pod'u kontrol altında tutar.
 
@@ -777,7 +777,7 @@ data:
 
 ## 13. Jenkins → Kubernetes Deployment Akışı
 
-Bölüm 7'de, Jenkins pipeline kurmıştuk. Şimdi, bunu Kubernetes ile entegre edeceğiz.
+Bölüm 7'de Jenkins pipeline kurmuştuk. Şimdi bunu Kubernetes ile entegre edeceğiz.
 
 ### Image Build
 
@@ -797,7 +797,7 @@ Image'ın tag'ı build numarasına göre: 1.0.0, 1.0.1, 1.0.2, ...
 
 ### Registry Push
 
-Image, container registry'e yüklendi.
+Image, container registry'ye yüklendi.
 
 ### Deployment Image Update
 
@@ -864,7 +864,7 @@ kubectl set image deployment/user-service \
   -n production
 ```
 
-Avantaj: Hızlı, single komut
+Avantaj: Hızlı, tek komut
 Dezavantaj: Versiyon kontrol yok, tekrar edilebilir değil
 
 ### Yaklaşım 2: Manifest Güncelleme
@@ -902,7 +902,7 @@ Dezavantaj: Daha karmaşık, Git'te veri saklama ihtiyacı
 
 ### Hangi Yaklaşım?
 
-- **kubectl set image**: Test, geliştirme, quick fix
+- **kubectl set image**: Test, geliştirme, hızlı düzeltme
 - **Manifest güncelleme**: Production, audit trail gerekirse
 
 ---
@@ -913,26 +913,26 @@ Dezavantaj: Daha karmaşık, Git'te veri saklama ihtiyacı
 
 Eski pod'lar silinip yeni pod'lar başlatılır. Sırası ile.
 
-Avantaj: Simple, zero-downtime
+Avantaj: Basit, kesintisize yakın güncelleme
 Dezavantaj: Eski ve yeni versiyon aynı anda çalışıyor (compatibility gerekli)
 
 ### Blue-Green Deployment
 
 İki ortam: mavi (eski versiyon), yeşil (yeni versiyon).
 
-İkisi de çalışıyor. Testler yapılıyor. Uygunsa, traffic yeşile switch edilir.
+İkisi de çalışır. Testler tamamlanınca trafik yeşile yönlendirilir.
 
-Avantaj: Instant switchover, instant rollback
+Avantaj: Anlık geçiş ve hızlı geri dönüş
 Dezavantaj: Çift kaynaklar gerekli
 
 ### Canary Deployment
 
-Yeni versiyon, small percentage ile başlar (örneğin %5).
+Yeni versiyon, küçük bir yüzde ile başlar (örneğin %5).
 
-- %95 traffic eski versiyona
-- %5 traffic yeni versiyona
+- %95 trafik eski versiyona
+- %5 trafik yeni versiyona
 
-Eğer yeni versiyon iyi çalışıyorsa, gradually artırılır. Problem varsa, rollback edilir.
+Eğer yeni versiyon iyi çalışıyorsa, kademeli olarak artırılır. Problem varsa, rollback edilir.
 
 Avantaj: Riski minimize eder
 Dezavantaj: Konfigürasyon karmaşık (istio gibi service mesh gerekir)
@@ -952,11 +952,11 @@ data:
   DB_PASSWORD: str0ngPas5w0rd
 ```
 
-Burada, parola plain text'dir. Git'te görülebilir.
+Burada parola düz metindir. Git'te görülebilir.
 
 **Doğru:**
 
-Base64 ile encode et:
+Base64 ile kodla:
 
 ```bash
 echo -n "str0ngPas5w0rd" | base64 # c3RyMG5nUGFzNXcwcmQ=
@@ -981,7 +981,7 @@ RUN echo "DB_HOST=prod-db.example.com" >> /app.env
 COPY app.jar /app.jar
 ```
 
-Config, image'a gömülü. Farklı ortanta için yeni image build gerekir.
+Config image'a gömülüdür. Farklı ortamlar için yeni image build etmek gerekir.
 
 **Doğru:**
 
@@ -999,7 +999,7 @@ containers:
     image: ...
 ```
 
-Pod crash'leyebilir, baştan başlatılmaz. Hazır olmayan pod talep alabilir.
+Pod çökebilir ve yeniden başlatılmaz. Hazır olmayan pod talep alabilir.
 
 **Doğru:**
 
@@ -1015,7 +1015,7 @@ containers:
     image: ...
 ```
 
-Pod aşırı kaynak tüketebilir. Diğer pod'lar starve kalır.
+Pod aşırı kaynak tüketebilir. Diğer pod'lar kaynak yetersizliği yaşayabilir.
 
 **Doğru:**
 
@@ -1029,7 +1029,7 @@ PostgreSQL'i Deployment ile çalıştırma. Pod silinirse veri silinir.
 
 **Doğru:**
 
-StatefulSet kullanma. PVC ile depolama bağlama.
+StatefulSet kullanın. PVC ile depolama bağlayın.
 
 ---
 
@@ -1364,6 +1364,4 @@ kubectl rollout undo deployment/user-service \
 # Rollout geçmişi
 kubectl rollout history deployment/user-service -n production
 ```
-
-
 
