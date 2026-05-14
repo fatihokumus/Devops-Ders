@@ -34,7 +34,7 @@ Eğer manuel yönetim yapıyorsak, yeni makineyi kurmalı, konteyneri o makineye
 
 Eğer manuel yönetim yapıyorsak, order-service'de user-service'in sabit adresini yazarız. Örneğin: `http://192.168.1.100:8080`. Ancak sorun, user-service makinesi başarısız olursa ne olacağı. IP adresi değişecek. user-service'in başka bir makineye taşınması gerekebilir. O zaman order-service'deki konfigürasyonu güncellemeliyiz.
 
-Ayrıca, user-service ölçeklenirse ne olacak? Birkaç makineye yayılmış olacak. Order-service, bunlardan hangisine bağlanacak? Load balancer'ı elle yapılandıracak mıyız? Bu çok hata açısından risklidir.
+Ayrıca, user-service ölçeklenirse ne olacak? Birkaç makineye yayılmış olacak. Order-service, bunlardan hangisine bağlanacak? Load balancer'ı elle yapılandıracak mıyız? Bu çok riskli bir yaklaışmdır ve hatalara sebep olabilir.
 
 Üretim ortamınız dinamik olduğunda (konteynerler dinamik olarak başlıyor ve kapanıyor), servis keşfi otomatik olmalıdır. Bir hizmet başladığında, diğer hizmetler otomatik olarak onu bulabilmelidir. Hizmetin adresi değişirse, diğerleri otomatik olarak yeni adresi bilmelidir.
 
