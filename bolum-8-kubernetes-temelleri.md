@@ -53,7 +53,7 @@ Basitçe, konteynerleri tek tek yönetmek değil, tümünü bir sistem olarak y�
 
 ---
 
-## 2. Container Orchestration Problemi
+## 2. Konteyner Orkestrasyonu Problemi
 
 ### Konteyner Çalıştırmak ile Sistem Yönetmek Arasındaki Fark
 
@@ -102,7 +102,7 @@ Kubernetes, konteyner uygulamalarını ölçülü bir şekilde çalıştırmak, 
 
 Kubernetes, container orchestration sorunlarını doğrudan ele alır. Konteyner çalıştırmaktan ziyade, konteyner tabanlı uygulamaları yönetmeye odaklanır.
 
-### Neyi Çözdüğü
+### Kubernetes Neyi Çözer?
 
 Kubernetes aşağıdaki sorunları çözer:
 
@@ -120,19 +120,19 @@ Kubernetes aşağıdaki sorunları çözer:
 
 7. **Düşük kaynak tüketimi**: Kubernetes, sistem kaynaklarını verimli bir şekilde kullanarak konteynerleri tercih edilen şekilde dağıtır.
 
-### Neden Modern Deployment Sistemlerinin Merkezinde Yer Aldığı
+### Neden Modern Dağıtım Sistemlerinin Merkezinde Yer Alır?
 
 Üretim ortamlarında yazılım dağıtmak, konteyner teknolojisinin ortaya çıkması ile radikal şekilde değişti. Sanal makinelerden farklı olarak, konteynerler hafif ve hızlıdır. Ancak bu hafiflik, yönetimi de karmaşık hale getiriyor. Binlerce konteyner çalıştırmak, bunu manuel olarak yapmak imkânsızdır.
 
 Kubernetes, bu ölçekte yönetimi mümkün kılmıştır. Kubernetes sayesinde, bir konfigürasyon dosyasıyla yüzlerce makine ve binlerce konteyner yönetilebilir. Bu, DevOps'un temelini oluşturur. Eğer Kubernetes'iniz varsa, manuel müdahale ihtiyacı minimum düzeye iner. Sistem kendi kendine çalışır ve gereken durumlarda iyileştirme yapar.
 
-Günümüzde, cloud ortamlarında konteyner tabanlı uygulamalar çalıştırmak neredeyse Kubernetes ile eşanlamlıdır. AWS'de Elastic Kubernetes Service (EKS), Azure'da Azure Kubernetes Service (AKS), Google Cloud'da Google Kubernetes Engine (GKE) gibi yönetilen Kubernetes hizmetleri mevcuttur. Bu, Kubernetes'in endüstri standardı hâline geldiğini gösterir.
+Günümüzde, bulut ortamlarında konteyner tabanlı uygulamalar çalıştırmak neredeyse Kubernetes ile eşanlamlıdır. AWS'de Elastic Kubernetes Service (EKS), Azure'da Azure Kubernetes Service (AKS), Google Cloud'da Google Kubernetes Engine (GKE) gibi yönetilen Kubernetes hizmetleri mevcuttur. Bu, Kubernetes'in endüstri standardı hâline geldiğini gösterir.
 
 ---
 
-## 4. Cluster Kavramı
+## 4. Küme (Cluster) Kavramı
 
-### Cluster Nedir?
+### Küme (Cluster) Nedir?
 
 Kubernetes'te bir cluster, Kubernetes tarafından yönetilen makinelerin (nodes) bir grubudur. Cluster, bir işletme olarak düşünülebilir: üretim hattı (worker nodes), yönetim merkezi (control plane), iş sahipleri (konteynerler) ve kurallar (policies) vardır.
 
@@ -146,7 +146,7 @@ Bir cluster'ın minimum yapısı:
 - **1 veya 3 control plane node**: Yüksek kullanılabilirlik için 3 tavsiye edilir
 - **Çok sayıda worker node**: Talep ve yüklenmeye göre değişir
 
-### Tek Makine ile Cluster Mantığı Arasındaki Fark
+### Tek Makine ile Küme Mantığı Arasındaki Fark
 
 Tek bir makineyi inceleyelim. Makinede birkaç konteyner çalıştırıyoruz:
 
@@ -322,11 +322,11 @@ Kubelet, container runtime'a "git, bu image'dan konteyner oluştur" der. Contain
 
 ---
 
-## 8. Desired State ve Reconciliation Mantığı
+## 8. İstenen Durum ve Uzlaştırma (Reconciliation) Mantığı
 
 Kubernetes'i anlamak için, "desired state" (istenilen durum) ve "actual state" (mevcut durum) arasındaki farkı anlamak gerekir.
 
-### Kullanıcı Ne Tanımlar (Desired State)
+### Kullanıcı Ne Tanımlar? (İstenen Durum)
 
 Siz bir YAML dosyası yazarsınız:
 
@@ -349,7 +349,7 @@ Bu dosya, "benim şu duruma ihtiyacım var" demektir:
 
 Bu, istenilen durumdur. Siz "bunu çalıştır" demiş olursunuz ama "nasıl" demezsiniz.
 
-### Sistem Neyi Korumaya Çalışır (Reconciliation)
+### Sistem Nasıl Uzlaştırır? (Reconciliation)
 
 Kubernetes üst çizgiyi alır ve harekete geçer:
 
@@ -602,9 +602,9 @@ kubectl logs user-service-pod -c user-service
 
 ---
 
-## 11. Declarative Yaklaşım
+## 11. Bildirimsel (Declarative) Yaklaşım
 
-### Imperative Komut ile Declarative YAML Farkı
+### Emredici Komutlar ile Bildirimsel YAML Arasındaki Fark
 
 **Imperative (Emrediş) Yaklaşım:**
 
@@ -628,7 +628,7 @@ Avantaj: YAML dosyası kaynak kontrolü altında tutulabilir (Git'e kaydedilebil
 
 ### Neden YAML Kullanıldığı
 
-YAML, insan tarafından okunabilir bir formatdır. JSON da kullanılabilir, fakat YAML daha basittir.
+YAML, insan tarafından okunabilir bir formattır. JSON da kullanılabilir, fakat YAML daha basittir.
 
 YAML örneği:
 
@@ -659,7 +659,7 @@ YAML daha okunaklı. Ayrıca, Kubernetes ekosistemi YAML'de standartlaştığı 
 
 2. **Versiyon Kontrol**: YAML dosyasını Git'e saklayabilirsiniz. Değişiklik geçmişi takip edilir.
 
-3. **Otomasyon**: CI/CD pipelineları, pod'u dağıtırken YAML dosyasını referans alabilir.
+3. **Otomasyon**: CI/CD pipeline'ları, pod'u dağıtırken YAML dosyasını referans alabilir.
 
 4. **Denetlenebilirlik**: Kim ne dağıttığını ve neden dağıttığını görebilirsiniz.
 
@@ -667,7 +667,7 @@ YAML daha okunaklı. Ayrıca, Kubernetes ekosistemi YAML'de standartlaştığı 
 
 ---
 
-## 12. Kubectl Mantığı
+## 12. `kubectl` Komutlarının Mantığı
 
 kubectl, Kubernetes API sunucusu ile iletişim kuran komut satırı aracıdır. Tüm Kubernetes işlemleri kubectl aracılığıyla gerçekleştirilir.
 
@@ -846,7 +846,7 @@ Bu durumda, `kubectl logs` kullanarak hata mesajlarını incelemek gerekir.
 
 ---
 
-## 14. Namespace Kavramına Giriş
+## 14. Namespace Kavramı
 
 ### Namespace Nedir?
 
@@ -909,7 +909,7 @@ kubectl get pods -n production
 
 ---
 
-## 15. Anti-Pattern: Yapmaması Gerekenler
+## 15. Anti-Pattern: Kaçınılması Gerekenler
 
 ### Tekil Docker Düşüncesini Kubernetes'e Taşımak
 

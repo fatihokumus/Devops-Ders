@@ -1,19 +1,19 @@
 # Bölüm 10 — Kubernetes Ortamında Production Pratikleri: ConfigMap, Secret, Storage, Probe'lar ve CI/CD Entegrasyonu
 
-## 1. Production Ortamında Yeni Gereksinimler
+## 1. Üretim Ortamında Yeni Gereksinimler
 
 Bölüm 9'da user-service uygulamasını basit bir şekilde Kubernetes'e dağıttık. Uygulamada sabit bir image vardı, ortam değişkenleri uygulamaya gömülüydü.
 
-Gerçek production ortamına geçerken, yeni gereksinimler ortaya çıkıyor.
+Gerçek üretim ortamına geçerken yeni gereksinimler ortaya çıkar.
 
-### Aynı Image, Farklı Ortam
+### Aynı Image, Farklı Ortamlar
 
 user-service aynı Docker image'ını, geliştirme, test, staging ve production ortamlarında çalıştırmak istiyoruz. Ancak her ortamda farklı ayarlar gerekir:
 
 - **Database host**: Geliştirme ortamında localhost, production'da managed database service
 - **Log seviyesi**: Geliştirmede DEBUG, production'da INFO veya ERROR
 - **API endpoints**: Test ortamında mock API'lar, production'da gerçek hizmetler
-- **Cache ayarları**: Her ortamda farklı Redis instance'ı
+- **Cache ayarları**: Her ortamda farklı Redis örneği
 
 Aynı image kullanarak bu farklılıkları nasıl yönetebiliriz? Kod içine ortama özel değerler gömülemez.
 
@@ -49,7 +49,7 @@ Kubernetes'e "uygulamanın gerçekten hazır olmasını kontrol et" demek gereki
 
 ConfigMap, Kubernetes'te konfigürasyon verilerini tutmak için kullanılan bir kaynaktır.
 
-Örneğin, user-service'in çeşitli ayarlarını ConfigMap'te sakladığımız:
+Örneğin, user-service'in çeşitli ayarlarını ConfigMap'te saklayabiliriz:
 
 - Database host
 - Servis port'u
@@ -59,9 +59,9 @@ ConfigMap, Kubernetes'te konfigürasyon verilerini tutmak için kullanılan bir 
 
 Bu veriler, pod çalışırken ortam değişkeni olarak pod'a enjekte edilir.
 
-### Environment'dan Farkı
+### Ortam Değişkenlerinden Farkı
 
-Geleneksel ortamlarda, konfigürasyonu shell environment'ına yazarız:
+Geleneksel ortamlarda, konfigürasyonu shell ortam değişkenlerine yazarız:
 
 ```bash
 export DB_HOST=localhost
@@ -251,7 +251,7 @@ data:
 
 **Önemli not:** Buradaki base64'ler örnek amaçlıdır. Gerçek production'da, Secret'ları versiyonlama sistemine koymayın. Bunları dışarıdan bir secret manager'dan alın (CI/CD pipeline tarafından).
 
-Secret oluşturmak için, base64 encoding:
+Secret oluşturmak için, base64 kodlama:
 
 ```bash
 echo -n "user_service" | base64
@@ -404,7 +404,7 @@ DB_USER  DB_PASSWORD  ...
 
 Bu yöntem, konfigürasyon dosyalarını (JSON, YAML) temsil eden uygulamalar için faydalı.
 
-### Hangi Yöntemini Seçmeli?
+### Hangi Yöntem Seçilmeli?
 
 - **envFrom**: Tüm ConfigMap'i kullanıyorsanız, basit ve hızlı
 - **env**: Belirli değişkenler istiyorsanız, seçici
@@ -414,7 +414,7 @@ Bu yöntem, konfigürasyon dosyalarını (JSON, YAML) temsil eden uygulamalar i�
 
 ## 7. Stateless ve Stateful Ayrımı
 
-### User-Service Stateless
+### User-Service (Stateless)
 
 user-service bir REST API'dır. İsteği alır, işler ve yanıt döndürür. Ardından bu isteği hatırlamaz.
 
@@ -422,7 +422,7 @@ Bir request'i pod-1'e göndersek, sonraki request'i pod-2'ye göndersek, sorun y
 
 Bu, **stateless** yapıdır. Stateless uygulamalar kolayca ölçeklenebilir ve yüksek erişilebilir şekilde çalıştırılabilir.
 
-### PostgreSQL Stateful
+### PostgreSQL (Stateful)
 
 PostgreSQL, veri tabanıdır. Veri diskte saklanır. Pod silinirse, veri de silinir.
 
@@ -453,7 +453,7 @@ serviceName: postgres
 replicas: 1  # Genellikle 1
 ```
 
-Tek bir instance (veya uydu'lı yüksek kullanılabilirlik). Pod silinirse veri aynı kalır.
+Tek bir örnek (veya yedekli yüksek kullanılabilirlik) çalıştırılır. Pod silinirse veri aynı kalır.
 
 ---
 
@@ -467,7 +467,7 @@ PostgreSQL gibi bir veritabanı, verileri kalıcı depolama alanında saklıyor.
 
 Kubernetes, bunu PersistentVolume (PV) ve PersistentVolumeClaim (PVC) ile sağlıyor.
 
-### Storage Soyutlaması
+### Depolama Soyutlaması
 
 PV, fiziksel depolamayı temsil eder. NFS, iSCSI, cloud block storage (AWS EBS, Azure Disk) olabilir.
 
@@ -547,7 +547,7 @@ Kubernetes:
 
 Kubernetes'e "bu pod talep almaya hazır mı?" sorusunun cevabı readiness probe ile verilir.
 
-Eğer probe başarısız olursa, pod Service'ten çıkarılır. Traffic gelmez.
+Eğer probe başarısız olursa, pod Service'ten çıkarılır. Trafik gelmez.
 
 Örnek:
 
@@ -563,7 +563,7 @@ readinessProbe:
 
 Kubernetes:
 1. 5 saniye bekler
-2. Her 5 saniyede `GET /ready` çağrısı yapır
+2. Her 5 saniyede `GET /ready` çağrısı yapar
 3. Eğer 2 kez başarısız olursa, pod kaldırılır
 
 ### Startup Probe
@@ -586,7 +586,7 @@ Kubernetes:
 - 30 başarısız denemeye izin verir (300 saniye = 5 dakika)
 - Başarılı olunca liveness/readiness probe'a geçer
 
-### Neden Production için Kritik Olduğu
+### Neden Üretim Ortamı İçin Kritiktir?
 
 Probe'lar olmadan:
 
@@ -728,7 +728,7 @@ Limits, pod'u kontrol altında tutar.
 
 ## 12. Namespace ile Ortam Ayrımı
 
-### Staging ve Production
+### Staging ve Production Ayrımı
 
 user-service'i test etmek istiyoruz. Bunu production'a zarar vermeden yapabiliriz. Namespace kullanarak:
 
@@ -850,11 +850,11 @@ post {
 
 ---
 
-## 14. Kubectl set image ve/veya Manifest Tabanlı Güncelleme
+## 14. `kubectl set image` ve Manifest Tabanlı Güncelleme
 
 İki yaklaşım var.
 
-### Yaklaşım 1: kubectl set image
+### Yaklaşım 1: `kubectl set image`
 
 Hızlı ve command-line tabanlı:
 
@@ -897,7 +897,7 @@ stage('Deploy') {
 }
 ```
 
-Avantaj: Git'te geçmiş, denetlenebilir, repeatable
+Avantaj: Git'te geçmişi vardır, denetlenebilir ve tekrarlanabilirdir
 Dezavantaj: Daha karmaşık, Git'te veri saklama ihtiyacı
 
 ### Hangi Yaklaşım?
@@ -907,14 +907,14 @@ Dezavantaj: Daha karmaşık, Git'te veri saklama ihtiyacı
 
 ---
 
-## 15. Production Rollout Stratejilerine Giriş
+## 15. Üretim Rollout Stratejilerine Giriş
 
-### Rolling Update (Default)
+### Rolling Update (Varsayılan)
 
 Eski pod'lar silinip yeni pod'lar başlatılır. Sırası ile.
 
 Avantaj: Basit, kesintisize yakın güncelleme
-Dezavantaj: Eski ve yeni versiyon aynı anda çalışıyor (compatibility gerekli)
+Dezavantaj: Eski ve yeni sürüm aynı anda çalışır (uyumluluk gerekir)
 
 ### Blue-Green Deployment
 
@@ -937,13 +937,13 @@ Eğer yeni versiyon iyi çalışıyorsa, kademeli olarak artırılır. Problem v
 Avantaj: Riski minimize eder
 Dezavantaj: Konfigürasyon karmaşık (istio gibi service mesh gerekir)
 
-Bu bölümde yalnızca giriş seviyesi. Production'da bu stratejiler, service mesh (Istio, Linkerd) ile birlikte kullanılır.
+Bu bölüm yalnızca giriş seviyesindedir. Production'da bu stratejiler, service mesh (Istio, Linkerd) ile birlikte kullanılır.
 
 ---
 
-## 16. Anti-Pattern: Yapmaması Gerekenler
+## 16. Anti-Pattern: Kaçınılması Gerekenler
 
-### Secret'ı Plain Text Yazmak
+### Secret'ı Düz Metin Olarak Yazmak
 
 **Yanlış:**
 
@@ -981,7 +981,7 @@ RUN echo "DB_HOST=prod-db.example.com" >> /app.env
 COPY app.jar /app.jar
 ```
 
-Config image'a gömülüdür. Farklı ortamlar için yeni image build etmek gerekir.
+Config image'a gömülüdür. Farklı ortamlar için image'ı yeniden build etmek gerekir.
 
 **Doğru:**
 
@@ -1003,7 +1003,7 @@ Pod çökebilir ve yeniden başlatılmaz. Hazır olmayan pod talep alabilir.
 
 **Doğru:**
 
-Probe'ları tanımla.
+Probe'ları tanımlayın.
 
 ### Resource Limit Koymamak
 
@@ -1033,7 +1033,7 @@ StatefulSet kullanın. PVC ile depolama bağlayın.
 
 ---
 
-## 17. Baştan Sona Örnek Production Senaryosu
+## 17. Baştan Sona Örnek Üretim Senaryosu
 
 Kompleks bir senaryo: user-service + PostgreSQL.
 
@@ -1364,4 +1364,3 @@ kubectl rollout undo deployment/user-service \
 # Rollout geçmişi
 kubectl rollout history deployment/user-service -n production
 ```
-

@@ -23,7 +23,7 @@ Bu yapı, basit kurulumlarda çalışabilir. Ancak üretim ortamında birkaç ci
 
 ### Kırılganlık Sorunu
 
-Tek bir pod çalışıyor. Pod'ta bir hata olursa ne olur? Pod kapanır. Kubernetes, pod'u yeniden başlatmaya çalışır, ancak başarısız kapanışlar tekrarlanırsa, pod'u başlatmayı bırakır.
+Tek bir pod çalışıyor. Pod'da bir hata olursa ne olur? Pod kapanır. Kubernetes, pod'u yeniden başlatmaya çalışır, ancak başarısız kapanışlar tekrarlanırsa, pod'u başlatmayı bırakır.
 
 Eğer pod kapanırsa, sistem tamamen kullanılamaz hâle gelir. Bunu önlemek için, birden fazla pod çalıştırmalıyız. Eğer bir pod kapanırsa, diğerleri çalışmaya devam eder.
 
@@ -32,7 +32,7 @@ Eğer pod kapanırsa, sistem tamamen kullanılamaz hâle gelir. Bunu önlemek i�
 user-service'in yeni sürümüne (1.1.0) güncellememiz gerekiyor. Tek pod varsa ne yapacağız?
 
 1. Pod'u sileriz
-2. Yeni image ile eğer pod'u çalıştırırız
+2. Yeni image ile pod'u çalıştırırız
 
 Bu süre boyunca, sistem kesintiye uğrar. Kullanıcılar hizmet alamaz.
 
@@ -48,7 +48,7 @@ kubectl apply -f user-service-pod-2.yaml
 kubectl apply -f user-service-pod-3.yaml
 ```
 
-Bu, ölçeklenebilir bir yaklaşım değildir. Eğer 10 pod'a çıkarmamız gerekirse, 10 tane dosya oluşturmülü mü?
+Bu, ölçeklenebilir bir yaklaşım değildir. Eğer 10 pod'a çıkarmamız gerekirse, 10 ayrı dosya mı oluşturacağız?
 
 Bu sorunları çözmek için Deployment harika bir araçtır.
 
@@ -70,7 +70,7 @@ Pod gibi, Deployment de YAML ile tanımlanır. Ancak Deployment, pod tanımını
 
 ### Neden Doğrudan Pod Yerine Deployment Kullanılır?
 
-Pod'u doğrudan Kubernetes'te çalıştırmak, el ile bağcık kullanmak gibi: işi yapabilir, fakat çok hata yapmaya engel değil.
+Pod'u Kubernetes'te doğrudan çalıştırmak işi görür, ancak hataya daha açıktır.
 
 Deployment kullanmak, bir oto-pilot sistemi kullanmak gibi: belirttiğiniz durumu korumaya çalışan, otomatik olarak gözlem yapan bir sistem.
 
@@ -80,7 +80,7 @@ Deployment'ın temel avantajları:
 
 2. **Self-healing**: İçindeki pod kapanırsa, Deployment otomatik olarak yeni pod başlatır.
 
-3. **Scaling**: Deployment'ı "2 tane pod çalıştır" olarak değiştirirseniz, Kubernetes otomatik olarak uyum sağlar.
+3. **Ölçekleme**: Deployment'ı "2 tane pod çalıştır" olarak değiştirirseniz, Kubernetes otomatik olarak uyum sağlar.
 
 4. **Rolling Update**: Yeni image'a geçerken, hizmet kesintisiz yapılabilir.
 
@@ -88,13 +88,13 @@ Deployment'ın temel avantajları:
 
 ## 3. ReplicaSet Mantığı
 
-Deployment'ı anlamak için, ReplicaSet'i anlamalı.
+Deployment'ı anlamak için ReplicaSet'i de anlamalıyız.
 
 ### ReplicaSet Nedir?
 
 ReplicaSet, belirli sayıda pod'un çalışmasını garanti eder. Eğer siz "3 tane user-service pod'u çalışması gerekiyor" derseniz, ReplicaSet bunu sağlar.
 
-Pod kapanırsa, ReplicaSet yeniden başlatır. Pod sayısı 3'ün üzerinde çıkarsa, ReplicaSet fazla pod'ları kapatır.
+Pod kapanırsa, ReplicaSet yeni bir pod oluşturur. Pod sayısı 3'ün üzerine çıkarsa, ReplicaSet fazla pod'ları kapatır.
 
 ### Desired Replica ve Actual Replica
 
@@ -268,9 +268,9 @@ Service de selector kullanarak hangi pod'lara trafik göndereceğini belirler. B
 
 ---
 
-## 6. Self-Healing Davranışı
+## 6. Kendi Kendini İyileştirme Davranışı
 
-Deployment'ın önemli bir özelliği, pod kapanırsa otomatik olarak yeniden başlatmadır.
+Deployment'ın önemli bir özelliği, pod kapanırsa otomatik olarak yeni pod oluşturmasıdır.
 
 ### Pod Silinirse Ne Olur?
 
@@ -310,15 +310,15 @@ Yukarıda, pod manuel olarak silinmişti. Gerçek ortamda pod hata verip kapanab
 
 ---
 
-## 7. Scaling
+## 7. Ölçekleme
 
-Scaling, pod sayısını artırmak veya azaltmak anlamına gelir.
+Ölçekleme, pod sayısını artırmak veya azaltmak anlamına gelir.
 
 ### Yatay Ölçekleme Mantığı
 
 user-service'e gelen talep arttığını varsayalım. Şu anda 3 pod var, ama sistem yeterli hızda yanıt vermiyor.
 
-Yatay ölçekleme, daha fazla pod başlatmaktır. Örneğin 5 pod'a çıkarmak. Bu, beş tane server yerine beş tane uygulama instance'ı anlamına gelir.
+Yatay ölçekleme, daha fazla pod başlatmaktır. Örneğin 5 pod'a çıkmak. Bu, beş ayrı sunucudan ziyade beş ayrı uygulama kopyası çalıştırmak anlamına gelir.
 
 Dikey ölçekleme (vertical scaling) ise, mevcut pod'ların kaynaklarını artırmak: CPU ve belleği artırmak. Ancak bu daha az verimli ve sınırlıdır.
 
@@ -428,7 +428,7 @@ Bu ayarlar, güncelleme sırasında hizmet kesintisini minimum düzeyde tutar.
 
 ---
 
-## 9. Rollout History ve Rollback
+## 9. Rollout Geçmişi ve Geri Alma (Rollback)
 
 Kubernetes, her Deployment güncellemesinin geçmişini tutar.
 
@@ -612,7 +612,7 @@ curl http://203.0.113.1
 
 ## 12. User-Service için Service Tanımı
 
-Deployment'imizi Service ile ortaya alalım. user-service içinde erişilebilir bir Service:
+Deployment'imizi bir Service ile erişilebilir hâle getirelim. user-service için örnek Service:
 
 ```yaml
 apiVersion: v1
@@ -655,7 +655,7 @@ NAME           TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
 user-service   ClusterIP   10.0.0.100      <none>        8080/TCP   2m
 ```
 
-Kubernetes, Service'e `10.0.0.100` cluster IP'sini atadı. Cluster içindeki pod'lar:"
+Kubernetes, Service'e `10.0.0.100` cluster IP'sini atadı. Cluster içindeki pod'lar:
 
 ```bash
 curl http://user-service:8080
@@ -697,9 +697,9 @@ Daha fazla pod = her pod daha az iş = daha hızlı yanıt = daha iyi sistem per
 
 ---
 
-## 14. Port-Forwarding ve Test
+## 14. Port Yönlendirme (Port-Forwarding) ve Test
 
-Development sırasında, siz cluster dışında çalışıyor olabilirsiniz. Service'e erişmek istiyor ama cluster dışında erişim yok.
+Development sırasında cluster dışında çalışıyor olabilirsiniz. Service'e erişmek istiyorsunuz, ancak dışarıdan doğrudan erişim yok.
 
 ### Port-Forwarding Nedir?
 
@@ -749,7 +749,7 @@ ile uygulama sağlığını kontrol edebilirsiniz.
 
 ---
 
-## 15. Anti-Pattern: Yapmaması Gerekenler
+## 15. Anti-Pattern: Kaçınılması Gerekenler
 
 ### Pod'a Sabit IP Gibi Davranmak
 
@@ -761,7 +761,7 @@ Uygulama, belirli bir pod'un IP'sini sabit kodlar. Örneğin:
 String userServiceUrl = "http://192.168.1.100:8080";
 ```
 
-Bu, pod güncellendikten sonra kopacak.
+Bu, pod güncellendikten sonra bağlantının kopmasına neden olur.
 
 **Doğru:**
 
@@ -771,7 +771,7 @@ Service kullanın. Örneğin:
 String userServiceUrl = "http://user-service:8080";
 ```
 
-Service, arkada pod'ları yönetir.
+Service, arkadaki pod'lara yönlendirmeyi yönetir.
 
 ### Label Kullanmamak
 
